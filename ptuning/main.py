@@ -166,9 +166,16 @@ def main():
                 else:
                     prompt = ""
                     history = examples[history_column][i]
-                    for turn_idx, (old_query, response) in enumerate(history):
-                        prompt += "[Round {}]\n问：{}\n答：{}\n".format(turn_idx, old_query, response)
-                    prompt += "[Round {}]\n问：{}\n答：".format(len(history), query)
+                    # for turn_idx, (old_query, response) in enumerate(history):
+                    #     prompt += "[Round {}]\n问：{}\n答：{}\n".format(turn_idx, old_query, response)
+                    # prompt += "[Round {}]\n问：{}\n答：".format(len(history), query)
+                    for turn_idx, dialog_lst in enumerate(history):
+                        prompt += '[Round {}]\n'.format(turn_idx)
+                        prompt += '\n'.join(dialog_lst)
+                        prompt += '\n'
+                    prompt += '[Round {}]\n'.format(len(history))
+                    prompt += query
+
                 inputs.append(prompt)
                 targets.append(examples[response_column][i])
 
@@ -191,6 +198,8 @@ def main():
             "input_ids": [],
             "labels": [],
         }
+        print(examples)
+        print(examples[prompt])
         for i in range(len(examples[prompt_column])):
             if examples[prompt_column][i] and examples[response_column][i]:
                 query, answer = examples[prompt_column][i], examples[response_column][i]
@@ -200,10 +209,17 @@ def main():
                 else:
                     prompt = ""
                     history = examples[history_column][i]
-                    for turn_idx, (old_query, response) in enumerate(history):
-                        prompt += "[Round {}]\n问：{}\n答：{}\n".format(turn_idx, old_query, response)
-                    prompt += "[Round {}]\n问：{}\n答：".format(len(history), query)
+                    # for turn_idx, (old_query, response) in enumerate(history):
+                    #     prompt += "[Round {}]\n问：{}\n答：{}\n".format(turn_idx, old_query, response)
+                    # prompt += "[Round {}]\n问：{}\n答：".format(len(history), query)
 
+                    for turn_idx, dialog_lst in enumerate(history):
+                        prompt += '[Round {}]\n'.format(turn_idx)
+                        prompt += '\n'.join(dialog_lst)
+                        prompt += '\n'
+                    prompt += '[Round {}]\n'.format(len(history))
+                    prompt += query
+                    
                 prompt = prefix + prompt
                 a_ids = tokenizer.encode(text=prompt, add_special_tokens=False)
                 b_ids = tokenizer.encode(text=answer, add_special_tokens=False)
@@ -241,6 +257,8 @@ def main():
         if "train" not in raw_datasets:
             raise ValueError("--do_train requires a train dataset")
         train_dataset = raw_datasets["train"]
+        print(raw_datasets)
+        print(train_dataset)
         if data_args.max_train_samples is not None:
             max_train_samples = min(len(train_dataset), data_args.max_train_samples)
             train_dataset = train_dataset.select(range(max_train_samples))
@@ -428,3 +446,4 @@ def _mp_fn(index):
 
 if __name__ == "__main__":
     main()
+
